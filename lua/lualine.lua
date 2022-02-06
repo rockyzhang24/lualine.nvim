@@ -341,7 +341,7 @@ local function setup(user_config)
   new_config = true
   config = modules.config_module.apply_configuration(user_config)
   vim.go.statusline = "%{%v:lua.require'lualine'.statusline()%}"
-  vim.go.laststatus = 2
+  vim.go.laststatus = config.options.globalstatus and 3 or 2
 end
 
 return {
