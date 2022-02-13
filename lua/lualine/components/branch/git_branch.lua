@@ -67,11 +67,12 @@ function M.find_git_dir(dir_path)
 
   -- Check whether the file in the current buffer is one of my dotfiles
   local current_file = vim.fn.expand('%')
-  local jid = vim.fn.jobstart({ "git", "--git-dir=~/dotfiles/", "--work-tree=~", "ls-files", "--error-unmatch", current_file})
+  local git_dir_bare = "/Users/rockyzhang/dotfiles/"
+  local jid = vim.fn.jobstart({ "git", "--git-dir", git_dir_bare, "--work-tree=/Users/rockyzhang/", "ls-files", "--error-unmatch", current_file})
   local ret = vim.fn.jobwait({jid})[1]
   -- If it is one of my dotfiles, set the git_dir to the bare repository
   if ret == 0 then
-    git_dir = "~/dotfiles"
+    git_dir = git_dir_bare
   else
     -- If not, search upward for .git file or folder
     while root_dir do
