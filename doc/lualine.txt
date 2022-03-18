@@ -107,6 +107,7 @@ For more information, check out `:help lua-heredoc`.
         section_separators = { left = '', right = ''},
         disabled_filetypes = {},
         always_divide_middle = true,
+        globalstatus = false,
       },
       sections = {
         lualine_a = {'mode'},
@@ -348,6 +349,9 @@ in component.
       always_divide_middle = true, -- When set to true, left sections i.e. 'a','b' and 'c'
                                    -- can't take over the entire statusline even
                                    -- if neither of 'x', 'y' or 'z' are present.
+      globalstatus = false,        -- enable global statusline (have a single statusline
+                                   -- at bottom of neovim instead of one for  every window).
+                                   -- This feature is only available in neovim 0.7 and higher.
     }
 <
 
@@ -365,7 +369,12 @@ General component options              These are options that control behavior
         {
           'mode',
           icons_enabled = true, -- Enables the display of icons alongside the component.
-          icon = nil,           -- Defines the icon to be displayed in front of the component.
+          -- Defines the icon to be displayed in front of the component.
+          -- Can be string|table
+          -- As table it must contain the icon as first entry and can use
+          -- color option to custom color the icon. Example:
+          -- {'branch', icon = ''} / {'branch', icon = {'', color={fg='green'}}}
+          icon = nil,
     
           separator = nil,      -- Determines what separator to use for the component.
                                 -- Note:
@@ -387,15 +396,19 @@ General component options              These are options that control behavior
     
           -- Defines a custom color for the component:
           --
-          -- 'highlight_group_name' | { fg = '#rrggbb'|cterm_value(0-255)|'color_name(red)', bg= '#rrggbb', gui='style' }
+          -- 'highlight_group_name' | { fg = '#rrggbb'|cterm_value(0-255)|'color_name(red)', bg= '#rrggbb', gui='style' } | function
           -- Note:
           --  '|' is synonymous with 'or', meaning a different acceptable format for that placeholder.
+          -- color function has to return one of other color types ('highlight_group_name' | { fg = '#rrggbb'|cterm_value(0-255)|'color_name(red)', bg= '#rrggbb', gui='style' })
+          -- color functions can be used to have different colors based on state as shown below.
           --
           -- Examples:
           --   color = { fg = '#ffaa88', bg = 'grey', gui='italic,bold' },
           --   color = { fg = 204 }   -- When fg/bg are omitted, they default to the your theme's fg/bg.
           --   color = 'WarningMsg'   -- Highlight groups can also be used.
-          --
+          --   color = function(section)
+          --      return { fg = vim.bo.modified and '#aa3355' or '#33aa88' }
+          --   end,
           color = nil, -- The default is your theme's color for that section and mode.
     
           -- Specify what type a component is, if omitted, lualine will guess it for you.
