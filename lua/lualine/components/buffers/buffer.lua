@@ -10,6 +10,7 @@ local modules = require('lualine_require').lazy_require {
 function Buffer:init(opts)
   assert(opts.bufnr, 'Cannot create Buffer without bufnr')
   self.bufnr = opts.bufnr
+  self.buf_index = opts.buf_index
   self.options = opts.options
   self.highlights = opts.highlights
   self:get_props()
@@ -132,8 +133,17 @@ function Buffer:name()
   elseif self.file == '' then
     return '[No Name]'
   end
-  return self.options.show_filename_only and vim.fn.fnamemodify(self.file, ':t')
-    or vim.fn.pathshorten(vim.fn.fnamemodify(self.file, ':p:.'))
+
+  local name
+  if self.options.show_filename_only then
+    name = vim.fn.fnamemodify(self.file, ':t')
+  else
+    name = vim.fn.pathshorten(vim.fn.fnamemodify(self.file, ':p:.'))
+  end
+  if self.options.hide_filename_extension then
+    name = vim.fn.fnamemodify(name, ':r')
+  end
+  return name
 end
 
 ---adds spaces to left and right
@@ -153,10 +163,10 @@ function Buffer:apply_mode(name)
   end
 
   if self.options.mode == 1 then
-    return string.format('%s %s%s', self.bufnr, self.icon, self.modified_icon)
+    return string.format('%s %s%s', self.buf_index or '', self.icon, self.modified_icon)
   end
 
-  return string.format('%s %s%s%s', self.bufnr, self.icon, name, self.modified_icon)
+  return string.format('%s %s%s%s', self.buf_index or '', self.icon, name, self.modified_icon)
 end
 
 return Buffer

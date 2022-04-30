@@ -62,9 +62,9 @@ on specific plugin. These numbers are the average of 20 runs.
 
 | control  |  lualine  | lightline |  airline  |
 | :------: | :-------: | :-------: | :-------: |
-| 8.943 ms | 10.140 ms | 12.522 ms | 38.850 ms |
+| 17.2 ms  |  24.8 ms  |  25.5 ms  |  79.9 ms  |
 
-Last Updated On: 20-09-2021
+Last Updated On: 18-04-2022
 
 ## Installation
 
@@ -362,6 +362,9 @@ sections = {
       -- As table it must contain the icon as first entry and can use
       -- color option to custom color the icon. Example:
       -- {'branch', icon = ''} / {'branch', icon = {'', color={fg='green'}}}
+
+      -- icon position can also be set to the right side from table. Example:
+      -- {'branch', icon = {'', align='right', color={fg='green'}}}
       icon = nil,
 
       separator = nil,      -- Determines what separator to use for the component.
@@ -434,11 +437,12 @@ sections = {
     {
       'buffers',
       show_filename_only = true,   -- Shows shortened relative path when set to false.
+      hide_filename_extension = false,   -- Hide filename extension when set to true.
       show_modified_status = true, -- Shows indicator when the buffer is modified.
 
       mode = 0, -- 0: Shows buffer name
-                -- 1: Shows buffer index (bufnr)
-                -- 2: Shows buffer name + buffer index (bufnr)
+                -- 1: Shows buffer index
+                -- 2: Shows buffer name + buffer index
 
       max_length = vim.o.columns * 2 / 3, -- Maximum width of buffers component,
                                           -- it can also be a function that returns
@@ -567,7 +571,10 @@ sections = {
     {
       'filetype',
       colored = true,   -- Displays filetype icon in color if set to true
-      icon_only = false -- Display only an icon for filetype
+      icon_only = false, -- Display only an icon for filetype
+      icon = { align = 'right' }, -- Display filetype icon on the right hand side
+      -- icon =    {'X', align='right'}
+      -- Icon string ^ in table is ignored in filetype component
     }
   }
 }
@@ -609,8 +616,8 @@ sections = {
       show_modified_status = true, -- Shows indicator when the window is modified.
 
       mode = 0, -- 0: Shows window name
-                -- 1: Shows window index (bufnr)
-                -- 2: Shows window name + window index (bufnr)
+                -- 1: Shows window index
+                -- 2: Shows window name + window index
 
       max_length = vim.o.columns * 2 / 3, -- Maximum width of windows component,
                                           -- it can also be a function that returns
@@ -672,6 +679,12 @@ tabline = {
 Shows currently open buffers. Like bufferline . See
 [buffers options](#buffers-component-options)
 for all builtin behaviors of buffers component.
+You can use `:LualineBuffersJump` to jump to buffer based on index
+of buffer in buffers component.
+```vim
+  :LualineBuffersJump 2  " Jumps to 2nd buffer in buffers component.
+  :LualineBuffersJump $  " Jumps to last buffer in buffers component.
+```
 
 #### Tabs
 Shows currently open tab. Like usual tabline. See
@@ -774,4 +787,6 @@ If you want to extend lualine with plugins or want to know
 which ones already do, [wiki/plugins](https://github.com/nvim-lualine/lualine.nvim/wiki/Plugins) is for you.
 
 ### Support
-I you appreciate my work you can by me a coffee [here](https://www.buymeacoffee.com/shadmansalJ).
+If you appreciate my work you can buy me a coffee.
+
+<a href="https://www.buymeacoffee.com/shadmansalJ" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-black.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;"></a>
