@@ -20,7 +20,7 @@ local timers = {
 }
 
 -- The events on which lualine redraws itself
-local default_refresh_events = 'WinEnter,BufEnter,SessionLoadPost,FileChangedShellPost,VimResized'
+local default_refresh_events = 'WinEnter,BufEnter,SessionLoadPost,FileChangedShellPost,VimResized,Filetype'
 if vim.fn.has('nvim-0.7') == 1 then -- utilize ModeChanged event introduced in 0.7
   default_refresh_events = default_refresh_events .. ',ModeChanged'
 end
@@ -360,13 +360,6 @@ local function refresh(opts)
     modules.nvim_opts.set('tabline', vim.api.nvim_win_call(vim.api.nvim_get_current_win(), tabline), { global = true })
   end
 
-  -- call redraw
-  if vim.tbl_contains(opts.place, 'statusline') or vim.tbl_contains(opts.place, 'winbar') then
-    vim.cmd('redrawstatus')
-  elseif vim.tbl_contains(opts.place, 'tabline') then
-    vim.cmd('redrawtabline')
-  end
-
   vim.g.actual_curwin = old_actual_curwin
 end
 
@@ -402,6 +395,9 @@ local function set_statusline()
   vim.loop.timer_stop(timers.stl_timer)
   vim.cmd([[augroup lualine_stl_refresh | exe "autocmd!" | augroup END]])
   if next(config.sections) ~= nil or next(config.inactive_sections) ~= nil then
+    if vim.go.statusline == '' then
+      modules.nvim_opts.set('statusline', '%#Normal#', { global = true })
+    end
     if config.options.globalstatus then
       modules.nvim_opts.set('laststatus', 3, { global = true })
       vim.loop.timer_start(
