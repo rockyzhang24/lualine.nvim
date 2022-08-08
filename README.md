@@ -125,6 +125,7 @@ require('lualine').setup {
       statusline = {},
       winbar = {},
     },
+    ignore_focus = {},
     always_divide_middle = true,
     globalstatus = false,
     refresh = {
@@ -337,7 +338,7 @@ Values set here are treated as default for other options
 that work in component level.
 
 For example even though `icons_enabled` is a general component option.
-you can set `icons_enabled` to `false` and icons will be disabled on all
+You can set `icons_enabled` to `false` and icons will be disabled on all
 component. You can still overwrite defaults set in option table by specifying
 the option value in component.
 
@@ -350,6 +351,13 @@ options = {
       statusline = {},       -- only ignores the ft for statusline.
       winbar = {},           -- only ignores the ft for winbar.
   },
+
+  ignore_focus = {},         -- If current filetype is in this list it'll
+                             -- always be drawn as inactive statusline
+                             -- and the last window will be drawn as active statusline.
+                             -- for example if you don't want statusline of
+                             -- your file tree / sidebar window to have active
+                             -- statusline you can add their filetypes here.
 
   always_divide_middle = true, -- When set to true, left sections i.e. 'a','b' and 'c'
                                -- can't take over the entire statusline even
@@ -512,7 +520,7 @@ sections = {
       'diagnostics',
 
       -- Table of diagnostic sources, available sources are:
-      --   'nvim_lsp', 'nvim_diagnostic', 'coc', 'ale', 'vim_lsp'.
+      --   'nvim_lsp', 'nvim_diagnostic', 'nvim_workspace_diagnostic', 'coc', 'ale', 'vim_lsp'.
       -- or a function that returns a table as such:
       --   { error=error_cnt, warn=warn_cnt, info=info_cnt, hint=hint_cnt }
       sources = { 'nvim_diagnostic', 'coc' },
@@ -585,6 +593,7 @@ sections = {
     {
       'filename',
       file_status = true,      -- Displays file status (readonly status, modified status)
+      newfile_status = false   -- Display new file status (new file means no write after created)
       path = 0,                -- 0: Just the filename
                                -- 1: Relative path
                                -- 2: Absolute path
@@ -596,6 +605,7 @@ sections = {
         modified = '[+]',      -- Text to show when the file is modified.
         readonly = '[-]',      -- Text to show when the file is non-modifiable or readonly.
         unnamed = '[No Name]', -- Text to show for unnamed buffers.
+        newfile = '[New]',     -- Text to show for new created file before first writting
       }
     }
   }
@@ -834,12 +844,53 @@ require('lualine').setup { extensions = { my_extension } }
 
 ---
 
+### Refreshing lualine
+By default lualine refreshes itself based on timer and some events. You can set
+the interval of the timer with refresh option. However you can also force
+lualine to refresh at any time by calling lualine.refresh function.
+```lua
+require('lualine').refresh({
+  scope = 'tabpage',  -- scope of refresh all/tabpage/window
+  place = { 'statusline', 'winbar', 'tabline' },  -- lualine segment ro refresh.
+})
+```
+The arguments shown here are default values. So not passing any of them will be
+treated as if a default value was passed.
+
+So you can simply do
+```lua
+require('lualine').refresh()
+```
+
+Avoid calling lualine.refresh inside components. Since components are evaluated
+during refresh, calling refresh while refreshing can have undesirable effects.
+
 ### Disabling lualine
 
 You can disable lualine for specific filetypes:
 
 ```lua
 options = { disabled_filetypes = {'lua'} }
+```
+
+You can also disable lualine completely.
+```lua
+  require('lualine').hide({
+    place = {'statusline', 'tabline', 'winbar'}, -- The segmentthis change applies to.
+    unhide = false,  -- whether to reenable lualine again/
+  })
+```
+The arguments show for hide above are default values.
+Which means even if the hide function is called without
+arguments it'll work as if these were passed.
+
+So in short to disable lualine completely you can do
+```lua
+require('lualine').hide()
+```
+To enable it again you can do
+```lua
+require('lualine').hide({unhide=true})
 ```
 
 <!-- panvimdoc-ignore-start -->
