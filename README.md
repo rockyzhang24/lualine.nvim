@@ -251,6 +251,7 @@ sections = {lualine_a = {'mode'}}
 - `location` (location in file in line:column format)
 - `mode` (vim mode)
 - `progress` (%progress in file)
+- `searchcount` (number of search matches when hlsearch is active)
 - `tabs` (shows currently available tabs)
 - `windows` (shows currently available windows)
 
@@ -878,9 +879,10 @@ options = { disabled_filetypes = {'lua'} }
 ```
 
 You can also disable lualine completely.
+Note that you need to call this after the setup
 ```lua
   require('lualine').hide({
-    place = {'statusline', 'tabline', 'winbar'}, -- The segmentthis change applies to.
+    place = {'statusline', 'tabline', 'winbar'}, -- The segment this change applies to.
     unhide = false,  -- whether to reenable lualine again/
   })
 ```
