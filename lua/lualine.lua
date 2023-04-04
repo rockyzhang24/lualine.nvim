@@ -251,6 +251,9 @@ local function setup_theme()
     elseif type(theme_name) == 'table' then
       -- use the provided theme as-is
       return config.options.theme
+    elseif type(theme_name) == 'function' then
+      -- call function and use returned (dynamic) theme as-is
+      return config.options.theme()
     end
     if theme_name ~= 'auto' then
       notify_theme_error(theme_name)
@@ -358,7 +361,7 @@ local function refresh(opts)
   local wins = {}
   local old_actual_curwin = vim.g.actual_curwin
 
-  -- ignore focus on filetypes listes in options.ignore_focus
+  -- ignore focus on filetypes listed in options.ignore_focus
   local curwin = vim.api.nvim_get_current_win()
   local curtab = vim.api.nvim_get_current_tabpage()
   if last_focus[curtab] == nil or not vim.api.nvim_win_is_valid(last_focus[curtab]) then

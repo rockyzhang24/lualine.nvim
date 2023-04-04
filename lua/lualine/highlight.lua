@@ -35,6 +35,13 @@ local mode_to_highlight = {
   ['O-PENDING'] = '_pending',
 }
 
+--- Get highlight suffix for current mode, or inactive if not focused
+---@return string mode_suffix
+function M.get_mode_suffix()
+  local mode = require('lualine.utils.mode').get_mode()
+  return mode_to_highlight[mode] or '_normal'
+end
+
 --- determine if an highlight exist and isn't cleared
 ---@param highlight_name string
 ---@return boolean whether hl_group was defined with highlight_name
@@ -184,7 +191,7 @@ function M.highlight(name, foreground, background, gui, link)
   }
 end
 
----Attach a hl to another, so the attachee auto updates on change to hl that it's attached too.
+---Attach a hl to another, so the attached auto updates on change to hl that it's attached too.
 ---@param provider string the hl receiver is getting attached to
 ---@param receiver string the hl that will be auto updated upon change to provider
 ---@param provider_el_type string (fg/bg) what element receiver relates to of provider
@@ -223,8 +230,7 @@ local function append_mode(highlight_group, is_focused)
   if is_focused == false then
     return highlight_group .. '_inactive'
   end
-  local mode = require('lualine.utils.mode').get_mode()
-  return highlight_group .. (mode_to_highlight[mode] or '_normal')
+  return highlight_group .. M.get_mode_suffix()
 end
 
 -- Helper function for create component highlight
@@ -329,7 +335,7 @@ function M.create_component_highlight_group(color, highlight_tag, options, apply
   end
 
   if type(color) ~= 'function' and (apply_no_default or (color.bg and color.fg)) then
-    -- When bg and fg are both present we donn't need to set highlighs for
+    -- When bg and fg are both present we don't need to set highlights for
     -- each mode as they will surely look the same. So we can work without options
     local highlight_group_name = table.concat({ 'lualine', section, highlight_tag }, '_')
     M.highlight(highlight_group_name, color.fg, color.bg, color.gui, nil)
@@ -394,13 +400,13 @@ function M.component_format_highlight(highlight, is_focused)
     local color = highlight.fn { section = highlight.section } or {}
     local hl_name = highlight.name
     if type(color) == 'string' then
-      M.highlight(hl_name, nil, nil, nil, color)
-      return '%#' .. hl_name .. '#'
+      M.highlight(hl_name .. M.get_mode_suffix(), nil, nil, nil, color)
+      return '%#' .. hl_name .. M.get_mode_suffix() .. '#'
     elseif type(color) == 'table' then
       if not highlight.no_default and not (color.fg and color.bg) then
         hl_name = append_mode(highlight.name, is_focused)
         color =
-          get_default_component_color(hl_name, append_mode(''):sub(2), highlight.section, color, highlight.options)
+          get_default_component_color(hl_name, M.get_mode_suffix():sub(2), highlight.section, color, highlight.options)
       end
       M.highlight(hl_name, color.fg, color.bg, color.gui, color.link)
       return '%#' .. hl_name .. '#', color
