@@ -11,15 +11,15 @@ local colors = {
   violet = '#646695',
   purple = '#68217a',
   white = '#ffffff',
-  lightgray = '#454545',
-  gray = '#252526',
+  gray = '#3E3E3E',
+  black = '#181818',
 }
 
 return {
   normal = {
     a = { fg = colors.white, bg = colors.blue },
-    b = { fg = colors.white, bg = colors.lightgray },
-    c = { fg = colors.white, bg = colors.gray }
+    b = { fg = colors.white, bg = colors.gray },
+    c = { fg = colors.white, bg = colors.black }
   },
   insert = {
     a = { fg = colors.white, bg = colors.orange },
@@ -40,6 +40,7 @@ return {
     a = { fg = colors.white, bg = colors.red },
   },
   inactive = {
-    a = { fg = colors.white, bg = colors.darkgray },
+    a = { fg = colors.white, bg = colors.black },
   }
 }
+
