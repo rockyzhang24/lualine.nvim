@@ -56,47 +56,45 @@ local function update_branch()
   branch_cache[vim.api.nvim_get_current_buf()] = current_git_branch
 end
 
+---updates the current value of current_git_branch and sets up file watch on HEAD file if value changed
+local function update_current_git_dir(git_dir)
+  if current_git_dir ~= git_dir then
+    current_git_dir = git_dir
+    update_branch()
+  end
+end
+
 ---returns full path to git directory for dir_path or current directory
 ---@param dir_path string|nil
----@return string
+---@return string|nil
 function M.find_git_dir(dir_path)
+  local git_dir = vim.env.GIT_DIR
+  if git_dir then
+    update_current_git_dir(git_dir)
+    return git_dir
+  end
+
   -- get file dir so we can search from that dir
   local file_dir = dir_path or vim.fn.expand('%:p:h')
   local root_dir = file_dir
-  local git_dir
-
-  -- Check whether the file in the current buffer is one of my dotfiles
-  local current_file = vim.fn.expand('%')
-  local git_dir_bare = "/Users/rockyzhang/dotfiles/"
-  local jid = vim.fn.jobstart({ "git", "--git-dir", git_dir_bare, "--work-tree=/Users/rockyzhang/", "ls-files", "--error-unmatch", current_file})
-  local ret = vim.fn.jobwait({jid})[1]
-  -- If it is one of my dotfiles, set the git_dir to the bare repository
-  if ret == 0 then
-    git_dir = git_dir_bare
-  else
-    -- If not, search upward for .git file or folder
-    while root_dir do
-      if git_dir_cache[root_dir] then
-        git_dir = git_dir_cache[root_dir]
-        break
-      end
-      local git_path = root_dir .. sep .. '.git'
-      local git_file_stat = vim.loop.fs_stat(git_path)
-      if git_file_stat then
-        if git_file_stat.type == 'directory' then
-          git_dir = git_path
-        elseif git_file_stat.type == 'file' then
-          -- separate git-dir or submodule is used
-          local file = io.open(git_path)
-          if file then
-            git_dir = file:read()
-            git_dir = git_dir and git_dir:match('gitdir: (.+)$')
-            file:close()
-          end
-          -- submodule / relative file path
-          if git_dir and git_dir:sub(1, 1) ~= sep and not git_dir:match('^%a:.*$') then
-            git_dir = git_path:match('(.*).git') .. git_dir
-          end
+  -- Search upward for .git file or folder
+  while root_dir do
+    if git_dir_cache[root_dir] then
+      git_dir = git_dir_cache[root_dir]
+      break
+    end
+    local git_path = root_dir .. sep .. '.git'
+    local git_file_stat = vim.loop.fs_stat(git_path)
+    if git_file_stat then
+      if git_file_stat.type == 'directory' then
+        git_dir = git_path
+      elseif git_file_stat.type == 'file' then
+        -- separate git-dir or submodule is used
+        local file = io.open(git_path)
+        if file then
+          git_dir = file:read()
+          git_dir = git_dir and git_dir:match('gitdir: (.+)$')
+          file:close()
         end
         if git_dir then
           local head_file_stat = vim.loop.fs_stat(git_dir .. sep .. 'HEAD')
@@ -112,9 +110,8 @@ function M.find_git_dir(dir_path)
   end
 
   git_dir_cache[file_dir] = git_dir
-  if dir_path == nil and current_git_dir ~= git_dir then
-    current_git_dir = git_dir
-    update_branch()
+  if dir_path == nil then
+    update_current_git_dir(git_dir)
   end
   return git_dir
 end

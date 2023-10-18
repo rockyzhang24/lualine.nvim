@@ -24,11 +24,7 @@ function M.init()
 end
 
 M.sections = {
-  lualine_a = {
-    {
-      label,
-    },
-  },
+  lualine_a = { label },
   lualine_b = { title },
   lualine_z = { 'location' },
 }
